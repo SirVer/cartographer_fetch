@@ -1,0 +1,51 @@
+<!--
+  Copyright 2016 The Cartographer Authors
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<launch>
+  <param name="/use_sim_time" value="true" />
+
+  <!-- <param name="robot_description" -->
+    <!-- textfile="$(find fetch_description)/robots/freight.urdf" /> -->
+  <!-- <node name="robot_state_publisher" pkg="robot_state_publisher" -->
+    <!-- type="robot_state_publisher" required="true" /> -->
+
+  <node name="cartographer_offline_node" pkg="cartographer_ros"
+      type="cartographer_offline_node" args="
+          -configuration_directory $(find cartographer_fetch)/configuration_files
+          -configuration_basename freight.lua
+          -use_bag_transforms=false
+          -urdf_filename $(find fetch_description)/robots/freight.urdf
+          -bag_filenames $(arg bag_filenames)"
+      output="screen">
+    <remap from="scan" to="base_scan" />
+  </node>
+
+  <!-- <node name="tf_remove_frames" pkg="cartographer_ros" -->
+      <!-- type="tf_remove_frames.py"> -->
+    <!-- <remap from="tf_out" to="/tf" /> -->
+    <!-- <rosparam param="remove_frames"> -->
+      <!-- - map -->
+      <!-- - odom_combined -->
+    <!-- </rosparam> -->
+  <!-- </node> -->
+
+  <node name="rviz" pkg="rviz" type="rviz" required="true"
+      args="-d $(find cartographer_ros)/configuration_files/demo_2d.rviz" />
+  <!-- <node name="playbag" pkg="rosbag" type="play" -->
+    <!-- args="-r1 -clock -bags $(arg bag_filename) -topics /base_scan /odom /tf"> -->
+      <!-- <remap from="tf" to="tf_in" /> -->
+  <!-- </node> -->
+</launch>

@@ -15,11 +15,34 @@
 -->
 
 <launch>
+  <param name="/use_sim_time" value="true" />
+
+  <!-- <param name="robot_description" -->
+    <!-- textfile="$(find fetch_description)/robots/freight.urdf" /> -->
+  <!-- <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" required="true" /> -->
+
+
   <node name="cartographer" pkg="cartographer_ros"
       type="cartographer_node" args="
           -configuration_directory $(find cartographer_fetch)/configuration_files
           -configuration_basename freight.lua"
       output="screen">
-    <remap from="scan" to="base_scan_raw" />
+    <remap from="scan" to="base_scan" />
+  </node>
+
+  <node name="tf_remove_frames" pkg="cartographer_ros"
+      type="tf_remove_frames.py">
+    <remap from="tf_out" to="/tf" />
+    <rosparam param="remove_frames">
+      - map
+      - odom_combined
+    </rosparam>
+  </node>
+
+  <node name="rviz" pkg="rviz" type="rviz" required="true"
+      args="-d $(find cartographer_fetch)/configuration_files/demo.rviz" />
+  <node name="playbag" pkg="rosbag" type="play"
+    args="-r3 --clock --bags $(arg bag_filename) --topics /tf /base_scan /odom /imu">
+      <remap from="tf" to="tf_in" />
   </node>
 </launch>
